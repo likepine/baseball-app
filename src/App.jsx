@@ -452,6 +452,26 @@ export default function App() {
   const [showFullMap, setShowFullMap] = useState(false);
   const fileInputRef = useRef(null);
 
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
+  useEffect(() => {
+    if (localStorage.getItem('app_authorized') === 'true') {
+      setIsAuthorized(true);
+    }
+  }, []);
+
+  const handlePasswordSubmit = (e) => {
+    e.preventDefault();
+    if (passwordInput === '062323') {
+      setIsAuthorized(true);
+      localStorage.setItem('app_authorized', 'true');
+    } else {
+      setPasswordError('비밀번호가 일치하지 않습니다.');
+    }
+  };
+
   const copyToClipboard = (text) => {
     const textArea = document.createElement("textarea");
     textArea.value = text;
@@ -732,6 +752,27 @@ export default function App() {
     reader.readAsText(file);
     event.target.value = '';
   };
+
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+        <form onSubmit={handlePasswordSubmit} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 w-full max-w-sm">
+          <h2 className="text-xl font-bold mb-4 text-center text-gray-800">접근 권한 확인</h2>
+          <input
+            type="password"
+            value={passwordInput}
+            onChange={(e) => setPasswordInput(e.target.value)}
+            placeholder="비밀번호 입력"
+            className="w-full p-3 border border-gray-300 rounded mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          {passwordError && <p className="text-red-500 text-sm mb-3 font-semibold">{passwordError}</p>}
+          <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded transition-colors">
+            접속
+          </button>
+        </form>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-8 font-sans text-gray-800">
