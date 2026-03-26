@@ -457,8 +457,17 @@ export default function App() {
   const [passwordError, setPasswordError] = useState('');
 
   useEffect(() => {
-    if (localStorage.getItem('app_authorized') === 'true') {
-      setIsAuthorized(true);
+    // 기존 무제한 인증 기록 초기화
+    localStorage.removeItem('app_authorized');
+    
+    const authData = localStorage.getItem('app_authorized_until');
+    if (authData) {
+      const expireTime = parseInt(authData, 10);
+      if (Date.now() < expireTime) {
+        setIsAuthorized(true);
+      } else {
+        localStorage.removeItem('app_authorized_until');
+      }
     }
   }, []);
 
@@ -466,7 +475,8 @@ export default function App() {
     e.preventDefault();
     if (passwordInput === '062323') {
       setIsAuthorized(true);
-      localStorage.setItem('app_authorized', 'true');
+      const expireTime = Date.now() + (24 * 60 * 60 * 1000); // 24시간 후 만료
+      localStorage.setItem('app_authorized_until', expireTime.toString());
     } else {
       setPasswordError('비밀번호가 일치하지 않습니다.');
     }
